@@ -29,44 +29,44 @@
       line-height: 1.5;
     }
 
-    header {
-      background: var(--royal-blue);
-      color: var(--white);
-      text-align: center;
-      padding: 2rem 1rem 2.25rem;
-      border-bottom: 6px solid var(--gold);
-    }
+header {
+  background: var(--royal-blue);
+  color: var(--white);
+  text-align: center;
+  padding: 1.1rem 1rem 1.35rem;
+  border-bottom: 4px solid var(--gold);
+}
 
-    .logo {
-      width: 160px;
-      max-width: 45vw;
-      height: auto;
-      background: var(--warm-white);
-      border-radius: 50%;
-      padding: 0.35rem;
-      box-shadow: var(--soft-shadow);
-      margin-bottom: 1rem;
-    }
+.logo {
+  width: 110px;
+  max-width: 30vw;
+  height: auto;
+  background: var(--warm-white);
+  border-radius: 50%;
+  padding: 0.18rem;
+  box-shadow: var(--soft-shadow);
+  margin-bottom: 0.6rem;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: clamp(2rem, 5vw, 3.8rem);
-      letter-spacing: 0.03em;
-    }
+header h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+  letter-spacing: 0.02em;
+}
 
-    header p {
-      max-width: 800px;
-      margin: 0.75rem auto 0;
-      font-size: 1.1rem;
-    }
+header p {
+  max-width: 760px;
+  margin: 0.45rem auto 0;
+  font-size: 1rem;
+}
 
-    .top-actions {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin: 1.5rem auto 0;
-    }
+.top-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 1rem auto 0;
+}
 
     .button {
       display: inline-block;
@@ -350,28 +350,18 @@
 </head>
 
 <body>
-  <header>
-    <img src="faith-logo.png" alt="Faith Missionary Baptist Church Logo" class="logo" />
-    <h1>Faith Community Calendar</h1>
-    <p>Stay connected with worship, ministry, academy, district, convention, and community events.</p>
+<header>
+  <img src="faith-logo.png" alt="Faith Missionary Baptist Church Logo" class="logo" />
+  <h1>Faith Community Calendar</h1>
+  <p>Stay connected with worship, ministry, Faith academy, Central District, State convention, and community events.</p>
+  <p class="header-note">Calendar submissions are reviewed on Mondays and Thursdays.</p>
 
-    <div class="top-actions">
-      <a class="button primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdC9AUYqgKnNawcSiHdNcBTbYvJ3E7cbV8lIz_10V9cP1YshQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
-        Submit an Event
-      </a>
-      <a class="button secondary" href="#upcoming">
-        View Upcoming Events
-      </a>
-    </div>
-  </header>
-
-  <main>
-    <section>
-      <div class="notice">
-        <strong>Calendar submissions are reviewed on Mondays and Thursdays.</strong>
-        Please submit events at least two weeks in advance whenever possible. Approved events will appear on this calendar after review.
-      </div>
-    </section>
+  <div class="top-actions">
+    <a class="button primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdC9AUYqgKnNawcSiHdNcBTbYvJ3E7cbV8lIz_10V9cP1YshQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+      Submit an Event
+    </a>
+  </div>
+</header>
 
     <section id="upcoming">
       <h2 class="section-title">Upcoming at Faith and Beyond</h2>
