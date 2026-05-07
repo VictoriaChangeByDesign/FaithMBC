@@ -37,15 +37,23 @@ header {
   border-bottom: 4px solid var(--gold);
 }
 
+ .logo-wrap {
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 0.55rem;
+  background: var(--warm-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--soft-shadow);
+  overflow: hidden;
+}   
 .logo {
-  width: 105px;
-  max-width: 28vw;
-  height: auto;
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
-  margin-bottom: 0.55rem;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 header h1 {
@@ -358,7 +366,9 @@ header p {
 
 <body>
 <header>
+<div class="logo-wrap">
   <img src="faith-logo.png" alt="Faith Missionary Baptist Church Logo" class="logo" />
+</div>
   <h1>Faith Community Calendar</h1>
   <p>Stay connected with worship, ministry, Faith academy, and community events.</p>
   <p class="header-note">Calendar submissions are updated on Mondays and Thursdays.</p>
