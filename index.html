@@ -29,63 +29,64 @@
       line-height: 1.5;
     }
 
-header {
-  background: var(--royal-blue);
-  color: var(--white);
-  text-align: center;
-  padding: 1.1rem 1rem 1.35rem;
-  border-bottom: 4px solid var(--gold);
-}
+    header {
+      background: var(--royal-blue);
+      color: var(--white);
+      text-align: center;
+      padding: 1rem 1rem 1.15rem;
+      border-bottom: 4px solid var(--gold);
+    }
 
- .logo-wrap {
-  width: 112px;
-  height: 112px;
-  margin: 0 auto 0.55rem;
-  background: var(--warm-white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--soft-shadow);
-  overflow: hidden;
-}   
-.logo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
+    .logo-wrap {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 0.45rem;
+      background: var(--warm-white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--soft-shadow);
+      overflow: hidden;
+    }
 
-header h1 {
-  margin: 0;
-  font-size: clamp(1.7rem, 4vw, 2.8rem);
-  letter-spacing: 0.02em;
-}
+    .logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
 
-header p {
-  max-width: 760px;
-  margin: 0.45rem auto 0;
-  font-size: 1rem;
-}
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+      letter-spacing: 0.02em;
+    }
 
-.header-note {
-  margin-top: 0.5rem;
-  font-size: 0.92rem;
-  color: var(--gold);
-  font-weight: bold;
-}
+    header p {
+      max-width: 760px;
+      margin: 0.35rem auto 0;
+      font-size: 0.95rem;
+    }
 
-.top-actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin: 1rem auto 0;
-}
+    .header-note {
+      margin-top: 0.45rem;
+      font-size: 0.88rem;
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 0.85rem auto 0;
+    }
 
     .button {
       display: inline-block;
-      padding: 0.85rem 1.2rem;
+      padding: 0.75rem 1.05rem;
       border-radius: 999px;
       text-decoration: none;
       font-weight: bold;
@@ -97,11 +98,6 @@ header p {
       color: var(--black);
     }
 
-    .button.secondary {
-      border: 2px solid var(--gold);
-      color: var(--white);
-    }
-
     .button:hover {
       transform: translateY(-2px);
       box-shadow: var(--soft-shadow);
@@ -109,17 +105,17 @@ header p {
 
     main {
       width: min(1050px, 92vw);
-      margin: 1.5rem auto;
+      margin: 1.75rem auto 0;
     }
 
     section {
-      margin-bottom: 2.5rem;
+      margin-bottom: 2.25rem;
     }
 
     .section-title {
       color: var(--royal-blue);
-      font-size: 1.9rem;
-      margin-bottom: 0.4rem;
+      font-size: clamp(1.45rem, 3vw, 1.9rem);
+      margin: 0 0 0.4rem;
     }
 
     .section-rule {
@@ -340,6 +336,30 @@ header p {
     }
 
     @media (max-width: 700px) {
+      header {
+        padding: 0.85rem 0.8rem 1rem;
+      }
+
+      .logo-wrap {
+        width: 82px;
+        height: 82px;
+      }
+
+      main {
+        width: min(100% - 1.5rem, 1050px);
+        margin-top: 1.25rem;
+      }
+
+      .calendar-header {
+        align-items: flex-start;
+      }
+
+      .calendar-nav button {
+        margin-left: 0;
+        margin-right: 0.25rem;
+        margin-top: 0.25rem;
+      }
+
       .calendar-grid {
         display: block;
       }
@@ -365,29 +385,42 @@ header p {
 </head>
 
 <body>
-<header>
-<div class="logo-wrap">
-  <img src="faith-logo.png" alt="Faith Missionary Baptist Church Logo" class="logo" />
-</div>
-  <h1>Faith Community Calendar</h1>
-  <p>Stay connected with worship, ministry, Faith academy, and community events.</p>
-  <p class="header-note">Calendar submissions are updated on Mondays and Thursdays.</p>
+  <header>
+    <div class="logo-wrap">
+      <img src="faith-logo.png" alt="Faith Missionary Baptist Church Logo" class="logo" />
+    </div>
 
-  <div class="top-actions">
-    <a class="button primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdC9AUYqgKnNawcSiHdNcBTbYvJ3E7cbV8lIz_10V9cP1YshQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
-      Submit an Event
-    </a>
-  </div>
-</header>
+    <h1>Faith Community Calendar</h1>
+    <p>Stay connected with worship, ministry, Faith Academy, and community events.</p>
+    <p class="header-note">Calendar submissions are updated on Mondays and Thursdays.</p>
 
-    <section id="upcoming">
-      <h2 class="section-title">Upcoming at Faith and Beyond</h2>
+    <div class="top-actions">
+      <a class="button primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdC9AUYqgKnNawcSiHdNcBTbYvJ3E7cbV8lIz_10V9cP1YshQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+        Submit an Event
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2 class="section-title">Monthly Calendar</h2>
       <div class="section-rule"></div>
-      <div id="featured-events" class="event-grid"></div>
+
+      <div class="calendar-shell">
+        <div class="calendar-header">
+          <h3 id="calendar-month-label">Month Year</h3>
+          <div class="calendar-nav">
+            <button id="prev-month">Previous</button>
+            <button id="today-month">Today</button>
+            <button id="next-month">Next</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
     </section>
 
     <section>
-      <h2 class="section-title">Browse Events</h2>
+      <h2 class="section-title">Upcoming Events</h2>
       <div class="section-rule"></div>
 
       <div class="filters" id="filters">
@@ -403,19 +436,9 @@ header p {
     </section>
 
     <section>
-      <h2 class="section-title">Monthly Calendar</h2>
-      <div class="section-rule"></div>
-
-      <div class="calendar-shell">
-        <div class="calendar-header">
-          <h3 id="calendar-month-label">Month Year</h3>
-          <div class="calendar-nav">
-            <button id="prev-month">Previous</button>
-            <button id="today-month">Today</button>
-            <button id="next-month">Next</button>
-          </div>
-        </div>
-        <div class="calendar-grid" id="calendar-grid"></div>
+      <div class="notice">
+        <strong>Submitting an event?</strong>
+        Calendar submissions are reviewed on Mondays and Thursdays. Please submit events at least two weeks in advance whenever possible. Approved events will appear on this calendar after review.
       </div>
     </section>
   </main>
@@ -561,24 +584,6 @@ header p {
       `;
     }
 
-    function renderFeaturedEvents() {
-      const container = document.getElementById("featured-events");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const upcoming = allEvents
-        .filter(event => event.date >= today)
-        .sort((a, b) => a.date - b.date)
-        .slice(0, 5);
-
-      if (!upcoming.length) {
-        container.innerHTML = `<div class="empty-state">No upcoming approved events are currently posted.</div>`;
-        return;
-      }
-
-      container.innerHTML = upcoming.map(makeEventCard).join("");
-    }
-
     function renderEventList() {
       const container = document.getElementById("event-list");
       const today = new Date();
@@ -708,13 +713,13 @@ header p {
           };
         }).filter(event => event.date);
 
-        renderFeaturedEvents();
         renderEventList();
         renderCalendar();
       } catch (error) {
         console.error(error);
-        document.getElementById("featured-events").innerHTML =
+        document.getElementById("event-list").innerHTML =
           `<div class="empty-state">The calendar could not load. Please check the published Google Sheet link.</div>`;
+        document.getElementById("calendar-grid").innerHTML = "";
       }
     }
 
