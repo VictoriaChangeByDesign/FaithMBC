@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faith Community Calendar</title>
+
+  <style>
+    :root {
+      --royal-blue: #032688;
+      --burgundy: #6B1A1A;
+      --gold: #DAB435;
+      --silver: #A8A8A8;
+      --warm-white: #F5F2EC;
+      --white: #FFFFFF;
+      --black: #000000;
+      --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background: var(--warm-white);
+      color: var(--black);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--royal-blue);
+      color: var(--white);
+      text-align: center;
+      padding: 2rem 1rem 2.25rem;
+      border-bottom: 6px solid var(--gold);
+    }
+
+    .logo {
+      width: 160px;
+      max-width: 45vw;
+      height: auto;
+      background: var(--warm-white);
+      border-radius: 50%;
+      padding: 0.35rem;
+      box-shadow: var(--soft-shadow);
+      margin-bottom: 1rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      letter-spacing: 0.03em;
+    }
+
+    header p {
+      max-width: 800px;
+      margin: 0.75rem auto 0;
+      font-size: 1.1rem;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1.5rem auto 0;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 0.85rem 1.2rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.2s ease;
+    }
+
+    .button.primary {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .button.secondary {
+      border: 2px solid var(--gold);
+      color: var(--white);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--soft-shadow);
+    }
+
+    main {
+      width: min(1150px, 92vw);
+      margin: 2rem auto;
+    }
+
+    section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+      color: var(--royal-blue);
+      font-size: 1.9rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-rule {
+      width: 90px;
+      height: 5px;
+      background: var(--gold);
+      margin-bottom: 1.25rem;
+      border-radius: 999px;
+    }
+
+    .notice {
+      background: var(--white);
+      border-left: 6px solid var(--gold);
+      padding: 1rem 1.25rem;
+      box-shadow: var(--soft-shadow);
+      border-radius: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-button {
+      border: 1px solid var(--silver);
+      background: var(--white);
+      color: var(--royal-blue);
+      padding: 0.65rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: inherit;
+    }
+
+    .filter-button.active {
+      background: var(--royal-blue);
+      color: var(--white);
+      border-color: var(--royal-blue);
+    }
+
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .event-card {
+      background: var(--white);
+      border: 1px solid rgba(168, 168, 168, 0.55);
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: var(--soft-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .event-card h3 {
+      margin: 0;
+      color: var(--royal-blue);
+      font-size: 1.35rem;
+    }
+
+    .event-meta {
+      font-weight: bold;
+      color: var(--burgundy);
+    }
+
+    .category-pill {
+      display: inline-block;
+      width: fit-content;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      color: var(--white);
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .cat-faith {
+      background: var(--royal-blue);
+    }
+
+    .cat-district {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .cat-state {
+      background: var(--burgundy);
+    }
+
+    .cat-academy {
+      background: var(--silver);
+      color: var(--black);
+    }
+
+    .cat-community {
+      background: var(--white);
+      color: var(--royal-blue);
+      border: 2px solid var(--royal-blue);
+    }
+
+    .calendar-shell {
+      background: var(--white);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: var(--soft-shadow);
+      border: 1px solid rgba(168, 168, 168, 0.55);
+    }
+
+    .calendar-header {
+      background: var(--royal-blue);
+      color: var(--white);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .calendar-header h3 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    .calendar-nav button {
+      background: var(--gold);
+      border: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 0.35rem;
+      font-family: inherit;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      border-top: 4px solid var(--gold);
+    }
+
+    .day-name {
+      background: #eee9df;
+      font-weight: bold;
+      text-align: center;
+      padding: 0.65rem;
+      border-bottom: 1px solid var(--silver);
+    }
+
+    .calendar-day {
+      min-height: 120px;
+      padding: 0.5rem;
+      border-right: 1px solid rgba(168, 168, 168, 0.4);
+      border-bottom: 1px solid rgba(168, 168, 168, 0.4);
+      background: var(--white);
+    }
+
+    .calendar-day.empty {
+      background: #f7f4ee;
+    }
+
+    .date-number {
+      font-weight: bold;
+      color: var(--royal-blue);
+      margin-bottom: 0.35rem;
+    }
+
+    .calendar-event {
+      display: block;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.35rem;
+      border-radius: 6px;
+      margin-bottom: 0.25rem;
+      color: var(--white);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .calendar-event.cat-district {
+      color: var(--black);
+    }
+
+    .calendar-event.cat-academy {
+      color: var(--black);
+    }
+
+    .calendar-event.cat-community {
+      color: var(--royal-blue);
+      border: 1px solid var(--royal-blue);
+    }
+
+    .empty-state {
+      background: var(--white);
+      border: 1px dashed var(--silver);
+      padding: 1.25rem;
+      border-radius: 16px;
+      color: #444;
+    }
+
+    footer {
+      background: var(--royal-blue);
+      color: var(--white);
+      text-align: center;
+      padding: 1.5rem 1rem;
+      border-top: 6px solid var(--gold);
+      margin-top: 3rem;
+    }
+
+    .small {
+      font-size: 0.92rem;
+      color: #333;
+    }
+
+    @media (max-width: 700px) {
+      .calendar-grid {
+        display: block;
+      }
+
+      .day-name {
+        display: none;
+      }
+
+      .calendar-day {
+        min-height: auto;
+        border-right: none;
+      }
+
+      .calendar-day.empty {
+        display: none;
+      }
+
+      .date-number::before {
+        content: "Date: ";
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="faith-logo.png" alt="Faith Missionary Baptist Church Logo" class="logo" />
+    <h1>Faith Community Calendar</h1>
+    <p>Stay connected with worship, ministry, academy, district, convention, and community events.</p>
+
+    <div class="top-actions">
+      <a class="button primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdC9AUYqgKnNawcSiHdNcBTbYvJ3E7cbV8lIz_10V9cP1YshQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+        Submit an Event
+      </a>
+      <a class="button secondary" href="#upcoming">
+        View Upcoming Events
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="notice">
+        <strong>Calendar submissions are reviewed on Mondays and Thursdays.</strong>
+        Please submit events at least two weeks in advance whenever possible. Approved events will appear on this calendar after review.
+      </div>
+    </section>
+
+    <section id="upcoming">
+      <h2 class="section-title">Upcoming at Faith and Beyond</h2>
+      <div class="section-rule"></div>
+      <div id="featured-events" class="event-grid"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Browse Events</h2>
+      <div class="section-rule"></div>
+
+      <div class="filters" id="filters">
+        <button class="filter-button active" data-category="All">All</button>
+        <button class="filter-button" data-category="Events at Faith">Events at Faith</button>
+        <button class="filter-button" data-category="Central District Events">Central District Events</button>
+        <button class="filter-button" data-category="State Convention Events">State Convention Events</button>
+        <button class="filter-button" data-category="Faith Academy Events">Faith Academy Events</button>
+        <button class="filter-button" data-category="Community Events">Community Events</button>
+      </div>
+
+      <div id="event-list" class="event-grid"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Monthly Calendar</h2>
+      <div class="section-rule"></div>
+
+      <div class="calendar-shell">
+        <div class="calendar-header">
+          <h3 id="calendar-month-label">Month Year</h3>
+          <div class="calendar-nav">
+            <button id="prev-month">Previous</button>
+            <button id="today-month">Today</button>
+            <button id="next-month">Next</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Faith Missionary Baptist Church</strong>
+    <br />
+    A church family committed to helping people come to Christ, grow in Christ, serve like Christ, and bring others to Christ.
+  </footer>
+
+  <script>
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRbT41t6BlpBfF8wtK1PEKjkborZ5z_uIahqFGZtVC05tloFZZX6OWXTUBRGIrHeaiiknYoiViq2LU8/pub?gid=741862693&single=true&output=csv";
+
+    let allEvents = [];
+    let filteredCategory = "All";
+    let currentMonth = new Date();
+
+    const categoryClassMap = {
+      "Events at Faith": "cat-faith",
+      "Central District Events": "cat-district",
+      "State Convention Events": "cat-state",
+      "Faith Academy Events": "cat-academy",
+      "Community Events": "cat-community"
+    };
+
+    function parseCSV(text) {
+      const rows = [];
+      let currentRow = [];
+      let currentCell = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const nextChar = text[i + 1];
+
+        if (char === '"' && insideQuotes && nextChar === '"') {
+          currentCell += '"';
+          i++;
+        } else if (char === '"') {
+          insideQuotes = !insideQuotes;
+        } else if (char === "," && !insideQuotes) {
+          currentRow.push(currentCell);
+          currentCell = "";
+        } else if ((char === "\n" || char === "\r") && !insideQuotes) {
+          if (currentCell || currentRow.length) {
+            currentRow.push(currentCell);
+            rows.push(currentRow);
+            currentRow = [];
+            currentCell = "";
+          }
+
+          if (char === "\r" && nextChar === "\n") {
+            i++;
+          }
+        } else {
+          currentCell += char;
+        }
+      }
+
+      if (currentCell || currentRow.length) {
+        currentRow.push(currentCell);
+        rows.push(currentRow);
+      }
+
+      return rows;
+    }
+
+    function clean(value) {
+      return value ? value.trim() : "";
+    }
+
+    function parseDate(value) {
+      if (!value) return null;
+
+      const parsed = new Date(value);
+      if (!isNaN(parsed)) return parsed;
+
+      const parts = value.split("/");
+      if (parts.length === 3) {
+        return new Date(parts[2], parts[0] - 1, parts[1]);
+      }
+
+      return null;
+    }
+
+    function formatDate(date) {
+      if (!date) return "";
+      return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    }
+
+    function formatTime(value) {
+      if (!value) return "";
+
+      const time = value.trim();
+
+      if (time.includes("AM") || time.includes("PM")) return time;
+
+      const parts = time.split(":");
+      if (parts.length < 2) return time;
+
+      let hour = parseInt(parts[0], 10);
+      const minute = parts[1];
+      const suffix = hour >= 12 ? "PM" : "AM";
+      hour = hour % 12 || 12;
+
+      return `${hour}:${minute} ${suffix}`;
+    }
+
+    function getCategoryClass(category) {
+      return categoryClassMap[category] || "cat-faith";
+    }
+
+    function makeEventCard(event) {
+      const categoryClass = getCategoryClass(event.category);
+      const dateRange = event.endDate && event.endDate.getTime() !== event.date.getTime()
+        ? `${formatDate(event.date)} - ${formatDate(event.endDate)}`
+        : formatDate(event.date);
+
+      const timeRange = event.startTime && event.endTime
+        ? `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`
+        : formatTime(event.startTime || event.endTime);
+
+      return `
+        <article class="event-card">
+          <span class="category-pill ${categoryClass}">${event.category}</span>
+          <h3>${event.title}</h3>
+          <div class="event-meta">${dateRange}${timeRange ? " | " + timeRange : ""}</div>
+          ${event.location ? `<div><strong>Location:</strong> ${event.location}</div>` : ""}
+          ${event.description ? `<p>${event.description}</p>` : ""}
+          ${event.contactPerson || event.contactInfo ? `
+            <div class="small">
+              <strong>Contact:</strong>
+              ${event.contactPerson ? event.contactPerson : ""}
+              ${event.contactInfo ? `, ${event.contactInfo}` : ""}
+            </div>
+          ` : ""}
+        </article>
+      `;
+    }
+
+    function renderFeaturedEvents() {
+      const container = document.getElementById("featured-events");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const upcoming = allEvents
+        .filter(event => event.date >= today)
+        .sort((a, b) => a.date - b.date)
+        .slice(0, 5);
+
+      if (!upcoming.length) {
+        container.innerHTML = `<div class="empty-state">No upcoming approved events are currently posted.</div>`;
+        return;
+      }
+
+      container.innerHTML = upcoming.map(makeEventCard).join("");
+    }
+
+    function renderEventList() {
+      const container = document.getElementById("event-list");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let events = allEvents
+        .filter(event => event.date >= today)
+        .sort((a, b) => a.date - b.date);
+
+      if (filteredCategory !== "All") {
+        events = events.filter(event => event.category === filteredCategory);
+      }
+
+      if (!events.length) {
+        container.innerHTML = `<div class="empty-state">No approved events match this category yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = events.map(makeEventCard).join("");
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById("calendar-grid");
+      const label = document.getElementById("calendar-month-label");
+
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+
+      label.textContent = currentMonth.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+      });
+
+      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      let html = dayNames.map(day => `<div class="day-name">${day}</div>`).join("");
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startOffset = firstDay.getDay();
+
+      for (let i = 0; i < startOffset; i++) {
+        html += `<div class="calendar-day empty"></div>`;
+      }
+
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const date = new Date(year, month, day);
+        const dateKey = date.toDateString();
+
+        let dayEvents = allEvents.filter(event => event.date.toDateString() === dateKey);
+
+        if (filteredCategory !== "All") {
+          dayEvents = dayEvents.filter(event => event.category === filteredCategory);
+        }
+
+        html += `
+          <div class="calendar-day">
+            <div class="date-number">${day}</div>
+            ${dayEvents.map(event => `
+              <span class="calendar-event ${getCategoryClass(event.category)}" title="${event.title}">
+                ${event.title}
+              </span>
+            `).join("")}
+          </div>
+        `;
+      }
+
+      grid.innerHTML = html;
+    }
+
+    function setupFilters() {
+      document.querySelectorAll(".filter-button").forEach(button => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll(".filter-button").forEach(btn => btn.classList.remove("active"));
+          button.classList.add("active");
+          filteredCategory = button.dataset.category;
+          renderEventList();
+          renderCalendar();
+        });
+      });
+    }
+
+    function setupCalendarNav() {
+      document.getElementById("prev-month").addEventListener("click", () => {
+        currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+        renderCalendar();
+      });
+
+      document.getElementById("today-month").addEventListener("click", () => {
+        currentMonth = new Date();
+        renderCalendar();
+      });
+
+      document.getElementById("next-month").addEventListener("click", () => {
+        currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+        renderCalendar();
+      });
+    }
+
+    async function loadEvents() {
+      try {
+        const response = await fetch(CSV_URL);
+        const text = await response.text();
+        const rows = parseCSV(text);
+
+        const headers = rows.shift().map(header => clean(header));
+
+        allEvents = rows.map(row => {
+          const item = {};
+          headers.forEach((header, index) => {
+            item[header] = clean(row[index]);
+          });
+
+          const date = parseDate(item["Event Date"]);
+          const endDate = parseDate(item["Event End Date"]) || date;
+
+          return {
+            title: item["Event Title"] || "Untitled Event",
+            category: item["Event Category"] || "Events at Faith",
+            date,
+            endDate,
+            startTime: item["Start Time"],
+            endTime: item["End Time"],
+            location: item["Location"],
+            description: item["Event Description"],
+            contactPerson: item["Contact Person"],
+            contactInfo: item["Contact Phone or Email"]
+          };
+        }).filter(event => event.date);
+
+        renderFeaturedEvents();
+        renderEventList();
+        renderCalendar();
+      } catch (error) {
+        console.error(error);
+        document.getElementById("featured-events").innerHTML =
+          `<div class="empty-state">The calendar could not load. Please check the published Google Sheet link.</div>`;
+      }
+    }
+
+    setupFilters();
+    setupCalendarNav();
+    loadEvents();
+  </script>
+</body>
+</html>
