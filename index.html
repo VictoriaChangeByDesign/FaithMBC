@@ -165,16 +165,9 @@
       gap: 1.25rem;
     }
 
-    .event-card {
-      background: var(--white);
-      border: 1px solid rgba(168, 168, 168, 0.55);
-      border-radius: 20px;
-      padding: 1.25rem;
-      box-shadow: var(--soft-shadow);
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
+ .event-card {
+  scroll-margin-top: 1.5rem;
+}
 
     .event-card h3 {
       margin: 0;
@@ -288,18 +281,22 @@
       margin-bottom: 0.35rem;
     }
 
-    .calendar-event {
-      display: block;
-      font-size: 0.78rem;
-      padding: 0.25rem 0.35rem;
-      border-radius: 6px;
-      margin-bottom: 0.25rem;
-      color: var(--white);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
+ .calendar-event {
+  display: block;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.35rem;
+  border-radius: 6px;
+  margin-bottom: 0.25rem;
+  color: var(--white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.calendar-event:hover {
+  text-decoration: underline;
+  filter: brightness(1.05);
+}
     .calendar-event.cat-district {
       color: var(--black);
     }
@@ -556,33 +553,33 @@
       return categoryClassMap[category] || "cat-faith";
     }
 
-    function makeEventCard(event) {
-      const categoryClass = getCategoryClass(event.category);
-      const dateRange = event.endDate && event.endDate.getTime() !== event.date.getTime()
-        ? `${formatDate(event.date)} - ${formatDate(event.endDate)}`
-        : formatDate(event.date);
+function makeEventCard(event) {
+  const categoryClass = getCategoryClass(event.category);
+  const dateRange = event.endDate && event.endDate.getTime() !== event.date.getTime()
+    ? `${formatDate(event.date)} - ${formatDate(event.endDate)}`
+    : formatDate(event.date);
 
-      const timeRange = event.startTime && event.endTime
-        ? `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`
-        : formatTime(event.startTime || event.endTime);
+  const timeRange = event.startTime && event.endTime
+    ? `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`
+    : formatTime(event.startTime || event.endTime);
 
-      return `
-        <article class="event-card">
-          <span class="category-pill ${categoryClass}">${event.category}</span>
-          <h3>${event.title}</h3>
-          <div class="event-meta">${dateRange}${timeRange ? " | " + timeRange : ""}</div>
-          ${event.location ? `<div><strong>Location:</strong> ${event.location}</div>` : ""}
-          ${event.description ? `<p>${event.description}</p>` : ""}
-          ${event.contactPerson || event.contactInfo ? `
-            <div class="small">
-              <strong>Contact:</strong>
-              ${event.contactPerson ? event.contactPerson : ""}
-              ${event.contactInfo ? `, ${event.contactInfo}` : ""}
-            </div>
-          ` : ""}
-        </article>
-      `;
-    }
+  return `
+    <article class="event-card" id="${event.id}">
+      <span class="category-pill ${categoryClass}">${event.category}</span>
+      <h3>${event.title}</h3>
+      <div class="event-meta">${dateRange}${timeRange ? " | " + timeRange : ""}</div>
+      ${event.location ? `<div><strong>Location:</strong> ${event.location}</div>` : ""}
+      ${event.description ? `<p>${event.description}</p>` : ""}
+      ${event.contactPerson || event.contactInfo ? `
+        <div class="small">
+          <strong>Contact:</strong>
+          ${event.contactPerson ? event.contactPerson : ""}
+          ${event.contactInfo ? `, ${event.contactInfo}` : ""}
+        </div>
+      ` : ""}
+    </article>
+  `;
+}
 
     function renderEventList() {
       const container = document.getElementById("event-list");
@@ -641,11 +638,11 @@
         html += `
           <div class="calendar-day">
             <div class="date-number">${day}</div>
-            ${dayEvents.map(event => `
-              <span class="calendar-event ${getCategoryClass(event.category)}" title="${event.title}">
-                ${event.title}
-              </span>
-            `).join("")}
+           ${dayEvents.map(event => `
+  <a class="calendar-event ${getCategoryClass(event.category)}" href="#${event.id}" title="${event.title}">
+    ${event.title}
+  </a>
+`).join("")}
           </div>
         `;
       }
@@ -690,7 +687,7 @@
 
         const headers = rows.shift().map(header => clean(header));
 
-        allEvents = rows.map(row => {
+  allEvents = rows.map((row, index) => {
           const item = {};
           headers.forEach((header, index) => {
             item[header] = clean(row[index]);
@@ -700,6 +697,7 @@
           const endDate = parseDate(item["Event End Date"]) || date;
 
           return {
+            id: `event-${index}`,
             title: item["Event Title"] || "Untitled Event",
             category: item["Event Category"] || "Events at Faith",
             date,
