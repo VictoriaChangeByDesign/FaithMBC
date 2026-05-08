@@ -595,15 +595,8 @@
     function eventOccursOnDate(event, date) {
       if (!event.date || !date) return false;
 
-      const repeatType = normalize(event.repeatType);
-      const isSpecial = isMemberSpecialDay(event);
-
-      /*
-        Important rule:
-        Recurring events should only show on the generated occurrence date.
-        Multi-day ranges should only be used for non-recurring events.
-      */
-      if (isSpecial || (repeatType && repeatType !== "no")) {
+      // Recurring generated instances should only show on their generated date.
+      if (event.isRecurringInstance) {
         return sameDate(event.date, date);
       }
 
@@ -778,29 +771,21 @@
       return clean(item["Event Title"]) || `${type}: Member`;
     }
 
-    function makeInstance(event, date, instanceIndex) {
-      const repeatType = normalize(event.repeatType);
-      const isSpecial = isMemberSpecialDay(event);
-
+    function makeInstance(event, date, instanceIndex, isRecurringInstance = false) {
       let endDate = date;
 
-      /*
-        Important rule:
-        Only preserve multi-day spans for non-recurring events.
-        Recurring events should generate one clean occurrence at a time.
-      */
-      if (!isSpecial && (!repeatType || repeatType === "no")) {
-        if (event.endDate && !sameDate(event.date, event.endDate)) {
-          const durationDays = Math.round((event.endDate - event.date) / (1000 * 60 * 60 * 24));
-          endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + durationDays);
-        }
+      // Only one-time, non-recurring events keep their multi-day span.
+      if (!isRecurringInstance && event.endDate && !sameDate(event.date, event.endDate)) {
+        const durationDays = Math.round((event.endDate - event.date) / (1000 * 60 * 60 * 24));
+        endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + durationDays);
       }
 
       return {
         ...event,
         id: `${event.baseId}-${instanceIndex}`,
         date,
-        endDate
+        endDate,
+        isRecurringInstance
       };
     }
 
@@ -816,12 +801,12 @@
       if (!event.date) return [];
 
       if (!isSpecial && (!repeatType || repeatType === "no")) {
-        return [makeInstance(event, event.date, 0)];
+        return [makeInstance(event, event.date, 0, false)];
       }
 
       if (isSpecial) {
         if (specialRepeat === "no") {
-          return [makeInstance(event, event.date, 0)];
+          return [makeInstance(event, event.date, 0, false)];
         }
 
         const instances = [];
@@ -831,7 +816,7 @@
           const instanceDate = new Date(year, event.date.getMonth(), event.date.getDate());
 
           if (instanceDate >= windowStart && instanceDate <= windowEnd) {
-            instances.push(makeInstance(event, instanceDate, count));
+            instances.push(makeInstance(event, instanceDate, count, true));
             count++;
           }
         }
@@ -847,7 +832,7 @@
           const instanceDate = new Date(year, event.date.getMonth(), event.date.getDate());
 
           if (instanceDate >= event.date && instanceDate <= repeatUntil && instanceDate <= windowEnd) {
-            instances.push(makeInstance(event, instanceDate, count));
+            instances.push(makeInstance(event, instanceDate, count, true));
             count++;
           }
         }
@@ -868,7 +853,7 @@
 
         while (current <= repeatUntil && current <= windowEnd) {
           if (current >= event.date && current >= windowStart) {
-            instances.push(makeInstance(event, new Date(current), count));
+            instances.push(makeInstance(event, new Date(current), count, true));
             count++;
           }
 
@@ -904,7 +889,7 @@
           }
 
           if (instanceDate && instanceDate >= event.date && instanceDate <= repeatUntil && instanceDate >= windowStart) {
-            instances.push(makeInstance(event, instanceDate, count));
+            instances.push(makeInstance(event, instanceDate, count, true));
             count++;
           }
 
@@ -914,7 +899,7 @@
         return instances;
       }
 
-      return [makeInstance(event, event.date, 0)];
+      return [makeInstance(event, event.date, 0, false)];
     }
 
     function makeEventCard(event) {
