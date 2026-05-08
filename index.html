@@ -660,7 +660,12 @@ function formatSpecialDayTitle(item, category) {
     return clean(item["Event Title"]) || "Untitled Event";
   }
 
-  const rawType = clean(item["Special Day Type"]);
+  const rawType = getFirstValueByPossibleHeaders(item, [
+    "Special Day Type",
+    "Type of Special Day",
+    "Birthday or Anniversary"
+  ]);
+
   const normalizedType = normalize(rawType);
 
   let type = "Special Day";
@@ -673,11 +678,15 @@ function formatSpecialDayTitle(item, category) {
     type = rawType;
   }
 
-  const names =
-    clean(item["Name(s) to Display"]) ||
-    clean(item["Name(s) to Display on the Calendar"]) ||
-    clean(item["Names to Display"]) ||
-    clean(item["Name to Display"]);
+  const names = getFirstValueByPossibleHeaders(item, [
+    "Name(s) to Display",
+    "Name(s) to Display on the Calendar",
+    "Names to Display",
+    "Name to Display",
+    "Anniversary Name(s) to Display",
+    "Birthday Name(s) to Display",
+    "Name(s)"
+  ]);
 
   if (names) {
     return `${type}: ${names}`;
