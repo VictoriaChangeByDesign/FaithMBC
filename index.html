@@ -593,34 +593,7 @@
     }
 
     function eventOccursOnDate(event, date) {
-      if (!event.date || !date) return false;
-
-      // Recurring generated instances should only show on their generated date.
-      if (event.isRecurringInstance) {
-        return sameDate(event.date, date);
-      }
-
-      const eventStart = new Date(
-        event.date.getFullYear(),
-        event.date.getMonth(),
-        event.date.getDate()
-      );
-
-      const eventEnd = event.endDate
-        ? new Date(
-            event.endDate.getFullYear(),
-            event.endDate.getMonth(),
-            event.endDate.getDate()
-          )
-        : eventStart;
-
-      const calendarDate = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate()
-      );
-
-      return calendarDate >= eventStart && calendarDate <= eventEnd;
+      return sameDate(event.date, date);
     }
 
     function formatDate(date) {
@@ -771,21 +744,27 @@
       return clean(item["Event Title"]) || `${type}: Member`;
     }
 
-    function makeInstance(event, date, instanceIndex, isRecurringInstance = false) {
-      let endDate = date;
+    function makeInstance(event, date, instanceIndex, isRecurringInstance = false, showInList = true, preserveRange = false) {
+      const id = `${event.baseId}-${instanceIndex}`;
 
-      // Only one-time, non-recurring events keep their multi-day span.
-      if (!isRecurringInstance && event.endDate && !sameDate(event.date, event.endDate)) {
-        const durationDays = Math.round((event.endDate - event.date) / (1000 * 60 * 60 * 24));
-        endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + durationDays);
-      }
+      const displayStartDate = preserveRange
+        ? event.date
+        : date;
+
+      const displayEndDate = preserveRange
+        ? (event.endDate || event.date)
+        : date;
 
       return {
         ...event,
-        id: `${event.baseId}-${instanceIndex}`,
+        id,
+        anchorId: preserveRange ? `${event.baseId}-0` : id,
         date,
-        endDate,
-        isRecurringInstance
+        endDate: date,
+        originalStartDate: displayStartDate,
+        originalEndDate: displayEndDate,
+        isRecurringInstance,
+        showInList
       };
     }
 
@@ -800,13 +779,54 @@
 
       if (!event.date) return [];
 
+      /*
+        True multi-day events:
+        If the event does not repeat and has an end date after the start date,
+        create one calendar instance for each day.
+        Only the first instance appears in the event list.
+      */
       if (!isSpecial && (!repeatType || repeatType === "no")) {
-        return [makeInstance(event, event.date, 0, false)];
+        const instances = [];
+
+        const startDate = new Date(
+          event.date.getFullYear(),
+          event.date.getMonth(),
+          event.date.getDate()
+        );
+
+        const endDate = event.endDate
+          ? new Date(
+              event.endDate.getFullYear(),
+              event.endDate.getMonth(),
+              event.endDate.getDate()
+            )
+          : startDate;
+
+        let current = new Date(startDate);
+        let count = 0;
+
+        while (current <= endDate) {
+          instances.push(
+            makeInstance(
+              event,
+              new Date(current),
+              count,
+              false,
+              count === 0,
+              true
+            )
+          );
+
+          current.setDate(current.getDate() + 1);
+          count++;
+        }
+
+        return instances;
       }
 
       if (isSpecial) {
         if (specialRepeat === "no") {
-          return [makeInstance(event, event.date, 0, false)];
+          return [makeInstance(event, event.date, 0, false, true, false)];
         }
 
         const instances = [];
@@ -816,7 +836,7 @@
           const instanceDate = new Date(year, event.date.getMonth(), event.date.getDate());
 
           if (instanceDate >= windowStart && instanceDate <= windowEnd) {
-            instances.push(makeInstance(event, instanceDate, count, true));
+            instances.push(makeInstance(event, instanceDate, count, true, true, false));
             count++;
           }
         }
@@ -832,7 +852,7 @@
           const instanceDate = new Date(year, event.date.getMonth(), event.date.getDate());
 
           if (instanceDate >= event.date && instanceDate <= repeatUntil && instanceDate <= windowEnd) {
-            instances.push(makeInstance(event, instanceDate, count, true));
+            instances.push(makeInstance(event, instanceDate, count, true, true, false));
             count++;
           }
         }
@@ -853,7 +873,7 @@
 
         while (current <= repeatUntil && current <= windowEnd) {
           if (current >= event.date && current >= windowStart) {
-            instances.push(makeInstance(event, new Date(current), count, true));
+            instances.push(makeInstance(event, new Date(current), count, true, true, false));
             count++;
           }
 
@@ -889,7 +909,7 @@
           }
 
           if (instanceDate && instanceDate >= event.date && instanceDate <= repeatUntil && instanceDate >= windowStart) {
-            instances.push(makeInstance(event, instanceDate, count, true));
+            instances.push(makeInstance(event, instanceDate, count, true, true, false));
             count++;
           }
 
@@ -899,16 +919,19 @@
         return instances;
       }
 
-      return [makeInstance(event, event.date, 0, false)];
+      return [makeInstance(event, event.date, 0, false, true, false)];
     }
 
     function makeEventCard(event) {
       const categoryClass = getCategoryClass(event.category);
       const specialClass = isMemberSpecialDay(event) ? " special-day-card" : "";
 
-      const dateRange = event.endDate && !sameDate(event.endDate, event.date)
-        ? `${formatDate(event.date)} - ${formatDate(event.endDate)}`
-        : formatDate(event.date);
+      const displayStartDate = event.originalStartDate || event.date;
+      const displayEndDate = event.originalEndDate || event.endDate || event.date;
+
+      const dateRange = displayEndDate && !sameDate(displayEndDate, displayStartDate)
+        ? `${formatDate(displayStartDate)} - ${formatDate(displayEndDate)}`
+        : formatDate(displayStartDate);
 
       const timeRange = event.startTime && event.endTime
         ? `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`
@@ -942,7 +965,12 @@
       upcomingWindowEnd.setDate(upcomingWindowEnd.getDate() + 90);
 
       let events = allEvents
-        .filter(event => event.date >= today && event.date <= upcomingWindowEnd)
+        .filter(event => event.showInList !== false)
+        .filter(event => {
+          const start = event.originalStartDate || event.date;
+          const end = event.originalEndDate || event.endDate || event.date;
+          return end >= today && start <= upcomingWindowEnd;
+        })
         .sort((a, b) => a.date - b.date);
 
       if (filteredCategory !== "All") {
@@ -996,7 +1024,7 @@
             <div class="date-number">${day}</div>
 
             ${dayEvents.slice(0, 3).map(event => `
-              <a class="calendar-event ${getCategoryClass(event.category)}" href="#${event.id}" title="${event.title}">
+              <a class="calendar-event ${getCategoryClass(event.category)}" href="#${event.anchorId || event.id}" title="${event.title}">
                 ${event.title}
               </a>
             `).join("")}
