@@ -595,6 +595,18 @@
     function eventOccursOnDate(event, date) {
       if (!event.date || !date) return false;
 
+      const repeatType = normalize(event.repeatType);
+      const isSpecial = isMemberSpecialDay(event);
+
+      /*
+        Important rule:
+        Recurring events should only show on the generated occurrence date.
+        Multi-day ranges should only be used for non-recurring events.
+      */
+      if (isSpecial || (repeatType && repeatType !== "no")) {
+        return sameDate(event.date, date);
+      }
+
       const eventStart = new Date(
         event.date.getFullYear(),
         event.date.getMonth(),
@@ -767,11 +779,21 @@
     }
 
     function makeInstance(event, date, instanceIndex) {
+      const repeatType = normalize(event.repeatType);
+      const isSpecial = isMemberSpecialDay(event);
+
       let endDate = date;
 
-      if (event.endDate && !sameDate(event.date, event.endDate)) {
-        const durationDays = Math.round((event.endDate - event.date) / (1000 * 60 * 60 * 24));
-        endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + durationDays);
+      /*
+        Important rule:
+        Only preserve multi-day spans for non-recurring events.
+        Recurring events should generate one clean occurrence at a time.
+      */
+      if (!isSpecial && (!repeatType || repeatType === "no")) {
+        if (event.endDate && !sameDate(event.date, event.endDate)) {
+          const durationDays = Math.round((event.endDate - event.date) / (1000 * 60 * 60 * 24));
+          endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + durationDays);
+        }
       }
 
       return {
