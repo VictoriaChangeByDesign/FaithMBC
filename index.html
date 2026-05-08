@@ -655,19 +655,25 @@
       return new Date(year, month, lastDay.getDate() - offset);
     }
 
-    function formatSpecialDayTitle(item, category) {
-      if (getCategoryLabel(category) !== "Member Special Days") {
-        return clean(item["Event Title"]) || "Untitled Event";
-      }
+function formatSpecialDayTitle(item, category) {
+  if (getCategoryLabel(category) !== "Member Special Days") {
+    return clean(item["Event Title"]) || "Untitled Event";
+  }
 
-      const type = clean(item["Special Day Type"]) || "Special Day";
-      const names =
-        clean(item["Name(s) to Display"]) ||
-        clean(item["Name(s) to Display on the Calendar"]) ||
-        clean(item["Event Title"]);
+  const type = clean(item["Special Day Type"]) || "Special Day";
 
-      return `${type}: ${names || "Member"}`;
-    }
+  const names =
+    clean(item["Name(s) to Display"]) ||
+    clean(item["Name(s) to Display on the Calendar"]) ||
+    clean(item["Names to Display"]) ||
+    clean(item["Name to Display"]);
+
+  if (names) {
+    return `${type}: ${names}`;
+  }
+
+  return clean(item["Event Title"]) || `${type}: Member`;
+}
 
     function makeInstance(event, date, instanceIndex) {
       let endDate = date;
@@ -954,25 +960,26 @@ function renderEventList() {
           const endDate = parseDate(item["Event End Date"]) || date;
           const repeatUntil = parseDate(item["Repeat Until"]);
 
-          return {
-            baseId: `event-${rowIndex}`,
-            title: formatSpecialDayTitle(item, category),
-            category,
-            date,
-            endDate,
-            startTime: item["Start Time"],
-            endTime: item["End Time"],
-            location: item["Location"],
-            description: item["Event Description"] || item["Additional Notes"],
-            contactPerson: item["Contact Person"],
-            contactInfo: item["Contact Phone or Email"],
-            specialDayType: item["Special Day Type"],
-            specialDayRepeat: item["Should this special day repeat every year?"],
-            repeatType: item["Does this event repeat?"],
-            weeklyRepeatDay: item["Weekly Repeat Day"],
-            monthlyRepeatPattern: item["Monthly Repeat Pattern"],
-            repeatUntil
-          };
+return {
+  baseId: `event-${rowIndex}`,
+  title: formatSpecialDayTitle(item, category),
+  category,
+  date,
+  endDate,
+  startTime: item["Start Time"],
+  endTime: item["End Time"],
+  location: item["Location"],
+  description: item["Event Description"] || item["Additional Notes"],
+  contactPerson: item["Contact Person"],
+  contactInfo: item["Contact Phone or Email"],
+  specialDayType: item["Special Day Type"],
+  specialDayRepeat: item["Should this special day repeat every year?"],
+  repeatType: item["Does this event repeat?"],
+  weeklyRepeatDay: item["Weekly Repeat Day"],
+  monthlyRepeatPattern: item["Monthly Repeat Pattern"],
+  repeatUntil,
+  displayNames: item["Name(s) to Display"] || item["Name(s) to Display on the Calendar"]
+};
         }).filter(event => event.date);
 
         allEvents = baseEvents
