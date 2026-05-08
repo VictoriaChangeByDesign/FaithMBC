@@ -660,7 +660,18 @@ function formatSpecialDayTitle(item, category) {
     return clean(item["Event Title"]) || "Untitled Event";
   }
 
-  const type = clean(item["Special Day Type"]) || "Special Day";
+  const rawType = clean(item["Special Day Type"]);
+  const normalizedType = normalize(rawType);
+
+  let type = "Special Day";
+
+  if (normalizedType.includes("birthday")) {
+    type = "Birthday";
+  } else if (normalizedType.includes("anniversary")) {
+    type = "Anniversary";
+  } else if (rawType) {
+    type = rawType;
+  }
 
   const names =
     clean(item["Name(s) to Display"]) ||
