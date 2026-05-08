@@ -17,9 +17,7 @@
       --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -108,9 +106,7 @@
       margin: 1.75rem auto 0;
     }
 
-    section {
-      margin-bottom: 2.25rem;
-    }
+    section { margin-bottom: 2.25rem; }
 
     .section-title {
       color: var(--royal-blue);
@@ -188,9 +184,7 @@
       font-size: 1.35rem;
     }
 
-    .special-day-card h3 {
-      color: var(--burgundy);
-    }
+    .special-day-card h3 { color: var(--burgundy); }
 
     .event-meta {
       font-weight: bold;
@@ -207,30 +201,15 @@
       font-weight: bold;
     }
 
-    .cat-faith {
-      background: var(--royal-blue);
-    }
-
-    .cat-district {
-      background: var(--gold);
-      color: var(--black);
-    }
-
-    .cat-state {
-      background: var(--burgundy);
-    }
-
-    .cat-academy {
-      background: var(--silver);
-      color: var(--black);
-    }
-
+    .cat-faith { background: var(--royal-blue); }
+    .cat-district { background: var(--gold); color: var(--black); }
+    .cat-state { background: var(--burgundy); }
+    .cat-academy { background: var(--silver); color: var(--black); }
     .cat-community {
       background: var(--white);
       color: var(--royal-blue);
       border: 2px solid var(--royal-blue);
     }
-
     .cat-special {
       background: var(--burgundy);
       color: var(--white);
@@ -294,9 +273,7 @@
       background: var(--white);
     }
 
-    .calendar-day.empty {
-      background: #f7f4ee;
-    }
+    .calendar-day.empty { background: #f7f4ee; }
 
     .date-number {
       font-weight: bold;
@@ -322,10 +299,7 @@
       filter: brightness(1.05);
     }
 
-    .calendar-event.cat-district {
-      color: var(--black);
-    }
-
+    .calendar-event.cat-district,
     .calendar-event.cat-academy {
       color: var(--black);
     }
@@ -371,9 +345,7 @@
     }
 
     @media (max-width: 700px) {
-      header {
-        padding: 0.85rem 0.8rem 1rem;
-      }
+      header { padding: 0.85rem 0.8rem 1rem; }
 
       .logo-wrap {
         width: 82px;
@@ -385,9 +357,7 @@
         margin-top: 1.25rem;
       }
 
-      .calendar-header {
-        align-items: flex-start;
-      }
+      .calendar-header { align-items: flex-start; }
 
       .calendar-nav button {
         margin-left: 0;
@@ -395,26 +365,17 @@
         margin-top: 0.25rem;
       }
 
-      .calendar-grid {
-        display: block;
-      }
-
-      .day-name {
-        display: none;
-      }
+      .calendar-grid { display: block; }
+      .day-name { display: none; }
 
       .calendar-day {
         min-height: auto;
         border-right: none;
       }
 
-      .calendar-day.empty {
-        display: none;
-      }
+      .calendar-day.empty { display: none; }
 
-      .date-number::before {
-        content: "Date: ";
-      }
+      .date-number::before { content: "Date: "; }
     }
   </style>
 </head>
@@ -548,26 +509,25 @@
     }
 
     function normalize(value) {
-      return clean(value).toLowerCase();
+      return clean(value).toLowerCase().replace(/[’']/g, "");
     }
 
     function parseDate(value) {
-      if (!value) return null;
+      const raw = clean(value);
+      if (!raw) return null;
 
-      const cleaned = clean(value);
-
-      const slashParts = cleaned.split("/");
-      if (slashParts.length === 3) {
-        const month = parseInt(slashParts[0], 10);
-        const day = parseInt(slashParts[1], 10);
-        const year = parseInt(slashParts[2], 10);
+      const parts = raw.split("/");
+      if (parts.length === 3) {
+        const month = parseInt(parts[0], 10);
+        const day = parseInt(parts[1], 10);
+        const year = parseInt(parts[2], 10);
 
         if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
           return new Date(year, month - 1, day);
         }
       }
 
-      const parsed = new Date(cleaned);
+      const parsed = new Date(raw);
       if (!isNaN(parsed)) {
         return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
       }
@@ -575,12 +535,12 @@
       return null;
     }
 
-    function sameDate(dateA, dateB) {
-      return dateA &&
-        dateB &&
-        dateA.getFullYear() === dateB.getFullYear() &&
-        dateA.getMonth() === dateB.getMonth() &&
-        dateA.getDate() === dateB.getDate();
+    function sameDate(a, b) {
+      return a &&
+        b &&
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate();
     }
 
     function formatDate(date) {
@@ -594,10 +554,8 @@
     }
 
     function formatTime(value) {
-      if (!value) return "";
-
       const time = clean(value);
-
+      if (!time) return "";
       if (time.includes("AM") || time.includes("PM")) return time;
 
       const parts = time.split(":");
@@ -611,75 +569,79 @@
       return `${hour}:${minute} ${suffix}`;
     }
 
+    function getCategoryLabel(category) {
+      const c = normalize(category);
+
+      if (c === "events at faith") return "Events at Faith";
+      if (c === "central district events") return "Central District Events";
+      if (c === "state convention events") return "State Convention Events";
+      if (c === "faith academy events") return "Faith Academy Events";
+      if (c === "community events") return "Community Events";
+      if (c === "member special days" || c === "members special days" || c === "member special day") return "Member Special Days";
+
+      return clean(category) || "Events at Faith";
+    }
+
     function getCategoryClass(category) {
-      return categoryClassMap[category] || "cat-faith";
+      return categoryClassMap[getCategoryLabel(category)] || "cat-faith";
     }
 
     function isMemberSpecialDay(event) {
-      return normalize(event.category) === "member special days";
-    }
-
-    function formatSpecialDayTitle(item) {
-      const type = clean(item["Special Day Type"]);
-      const names = clean(item["Name(s) to Display"]) || clean(item["Name(s) to Display on the Calendar"]);
-      const existingTitle = clean(item["Event Title"]);
-
-      if (!isMemberSpecialDay({ category: item["Event Category"] })) {
-        return existingTitle || "Untitled Event";
-      }
-
-      if (type && names) {
-        return `${type}: ${names}`;
-      }
-
-      if (type && existingTitle) {
-        return `${type}: ${existingTitle}`;
-      }
-
-      if (names) {
-        return names;
-      }
-
-      return existingTitle || "Member Special Day";
-    }
-
-    function getCategoryLabel(category) {
-      const normalized = normalize(category);
-
-      if (normalized === "member special day") return "Member Special Days";
-      if (normalized === "member special days") return "Member Special Days";
-      if (normalized === "events at faith") return "Events at Faith";
-      if (normalized === "central district events") return "Central District Events";
-      if (normalized === "state convention events") return "State Convention Events";
-      if (normalized === "faith academy events") return "Faith Academy Events";
-      if (normalized === "community events") return "Community Events";
-
-      return category || "Events at Faith";
+      return getCategoryLabel(event.category) === "Member Special Days";
     }
 
     function getDayNumber(dayName) {
       const days = {
-        "sunday": 0,
-        "monday": 1,
-        "tuesday": 2,
-        "wednesday": 3,
-        "thursday": 4,
-        "friday": 5,
-        "saturday": 6
+        sunday: 0,
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6
       };
 
       return days[normalize(dayName)];
     }
 
+    function parseMonthlyPattern(pattern) {
+      const p = normalize(pattern);
+
+      if (p === "same date each month") {
+        return { type: "same-date" };
+      }
+
+      const parts = p.split(" ");
+      if (parts.length !== 2) return null;
+
+      const order = parts[0];
+      const weekday = getDayNumber(parts[1]);
+
+      if (weekday === undefined) return null;
+
+      if (order === "last") {
+        return { type: "last", weekday };
+      }
+
+      const nthMap = {
+        first: 1,
+        second: 2,
+        third: 3,
+        fourth: 4
+      };
+
+      if (!nthMap[order]) return null;
+
+      return { type: "nth", nth: nthMap[order], weekday };
+    }
+
     function getNthWeekdayOfMonth(year, month, weekday, nth) {
       const firstDay = new Date(year, month, 1);
-      const firstWeekdayOffset = (weekday - firstDay.getDay() + 7) % 7;
-      const day = 1 + firstWeekdayOffset + (nth - 1) * 7;
-      const result = new Date(year, month, day);
+      const offset = (weekday - firstDay.getDay() + 7) % 7;
+      const day = 1 + offset + ((nth - 1) * 7);
+      const date = new Date(year, month, day);
 
-      if (result.getMonth() !== month) return null;
-
-      return result;
+      return date.getMonth() === month ? date : null;
     }
 
     function getLastWeekdayOfMonth(year, month, weekday) {
@@ -688,154 +650,147 @@
       return new Date(year, month, lastDay.getDate() - offset);
     }
 
-    function parseMonthlyPattern(pattern) {
-      const normalized = normalize(pattern);
-
-      if (normalized === "same date each month") {
-        return { type: "same-date" };
+    function formatSpecialDayTitle(item, category) {
+      if (getCategoryLabel(category) !== "Member Special Days") {
+        return clean(item["Event Title"]) || "Untitled Event";
       }
 
-      const parts = normalized.split(" ");
-      if (parts.length !== 2) return null;
+      const type = clean(item["Special Day Type"]) || "Special Day";
+      const names =
+        clean(item["Name(s) to Display"]) ||
+        clean(item["Name(s) to Display on the Calendar"]) ||
+        clean(item["Event Title"]);
 
-      const orderWord = parts[0];
-      const dayWord = parts[1];
-
-      const weekday = getDayNumber(dayWord);
-      if (weekday === undefined) return null;
-
-      if (orderWord === "last") {
-        return { type: "last", weekday };
-      }
-
-      const orderMap = {
-        "first": 1,
-        "second": 2,
-        "third": 3,
-        "fourth": 4
-      };
-
-      if (!orderMap[orderWord]) return null;
-
-      return {
-        type: "nth",
-        nth: orderMap[orderWord],
-        weekday
-      };
+      return `${type}: ${names || "Member"}`;
     }
 
-    function makeInstance(baseEvent, instanceDate, instanceIndex) {
-      const endDate = baseEvent.endDate && !sameDate(baseEvent.endDate, baseEvent.date)
-        ? new Date(
-            instanceDate.getFullYear(),
-            instanceDate.getMonth(),
-            instanceDate.getDate() + Math.round((baseEvent.endDate - baseEvent.date) / (1000 * 60 * 60 * 24))
-          )
-        : instanceDate;
+    function makeInstance(event, date, instanceIndex) {
+      let endDate = date;
+
+      if (event.endDate && !sameDate(event.date, event.endDate)) {
+        const durationDays = Math.round((event.endDate - event.date) / (1000 * 60 * 60 * 24));
+        endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + durationDays);
+      }
 
       return {
-        ...baseEvent,
-        id: `${baseEvent.id}-${instanceIndex}`,
-        date: instanceDate,
+        ...event,
+        id: `${event.baseId}-${instanceIndex}`,
+        date,
         endDate
       };
     }
 
-    function expandRecurringEvent(baseEvent) {
-      const repeatType = normalize(baseEvent.repeatType);
-      const specialRepeat = normalize(baseEvent.specialDayRepeat);
-      const isSpecial = isMemberSpecialDay(baseEvent);
+    function expandEvent(event) {
+      const repeatType = normalize(event.repeatType);
+      const specialRepeat = normalize(event.specialDayRepeat);
+      const isSpecial = isMemberSpecialDay(event);
 
-      const startWindow = new Date(new Date().getFullYear() - 1, 0, 1);
-      const endWindow = new Date(new Date().getFullYear() + 2, 11, 31);
+      const windowStart = new Date(new Date().getFullYear() - 1, 0, 1);
+      const windowEnd = new Date(new Date().getFullYear() + 2, 11, 31);
+      const repeatUntil = event.repeatUntil || windowEnd;
 
-      let repeatUntil = baseEvent.repeatUntil || endWindow;
+      if (!event.date) return [];
 
-      if (isSpecial && specialRepeat !== "no") {
-        repeatUntil = endWindow;
+      if (!isSpecial && (!repeatType || repeatType === "no")) {
+        return [makeInstance(event, event.date, 0)];
       }
 
-      if (!baseEvent.date) return [];
+      if (isSpecial) {
+        if (specialRepeat === "no") {
+          return [makeInstance(event, event.date, 0)];
+        }
 
-      if (!repeatType && !isSpecial) {
-        return [baseEvent];
-      }
+        const instances = [];
+        let count = 0;
 
-      if (repeatType === "no") {
-        return [baseEvent];
-      }
+        for (let year = windowStart.getFullYear(); year <= windowEnd.getFullYear(); year++) {
+          const instanceDate = new Date(year, event.date.getMonth(), event.date.getDate());
 
-      if (isSpecial || repeatType === "yearly") {
-        const events = [];
-        let instanceIndex = 0;
-
-        for (let year = startWindow.getFullYear(); year <= repeatUntil.getFullYear(); year++) {
-          const instanceDate = new Date(year, baseEvent.date.getMonth(), baseEvent.date.getDate());
-
-          if (instanceDate >= startWindow && instanceDate <= repeatUntil) {
-            events.push(makeInstance(baseEvent, instanceDate, instanceIndex));
-            instanceIndex++;
+          if (instanceDate >= windowStart && instanceDate <= windowEnd) {
+            instances.push(makeInstance(event, instanceDate, count));
+            count++;
           }
         }
 
-        return events;
+        return instances;
+      }
+
+      if (repeatType === "yearly") {
+        const instances = [];
+        let count = 0;
+
+        for (let year = event.date.getFullYear(); year <= repeatUntil.getFullYear(); year++) {
+          const instanceDate = new Date(year, event.date.getMonth(), event.date.getDate());
+
+          if (instanceDate >= event.date && instanceDate <= repeatUntil && instanceDate <= windowEnd) {
+            instances.push(makeInstance(event, instanceDate, count));
+            count++;
+          }
+        }
+
+        return instances;
       }
 
       if (repeatType === "weekly") {
-        const events = [];
-        const weekday = getDayNumber(baseEvent.weeklyRepeatDay) ?? baseEvent.date.getDay();
-        let current = new Date(baseEvent.date);
-        let instanceIndex = 0;
+        const instances = [];
+        const weekday = getDayNumber(event.weeklyRepeatDay);
+        let current = new Date(event.date);
+        let count = 0;
 
-        const offset = (weekday - current.getDay() + 7) % 7;
-        current.setDate(current.getDate() + offset);
+        if (weekday !== undefined) {
+          const offset = (weekday - current.getDay() + 7) % 7;
+          current.setDate(current.getDate() + offset);
+        }
 
-        while (current <= repeatUntil && current <= endWindow) {
-          if (current >= startWindow) {
-            events.push(makeInstance(baseEvent, new Date(current), instanceIndex));
-            instanceIndex++;
+        while (current <= repeatUntil && current <= windowEnd) {
+          if (current >= event.date && current >= windowStart) {
+            instances.push(makeInstance(event, new Date(current), count));
+            count++;
           }
+
           current.setDate(current.getDate() + 7);
         }
 
-        return events;
+        return instances;
       }
 
       if (repeatType === "monthly") {
-        const events = [];
-        const pattern = parseMonthlyPattern(baseEvent.monthlyRepeatPattern);
-        let instanceIndex = 0;
+        const instances = [];
+        const pattern = parseMonthlyPattern(event.monthlyRepeatPattern);
+        let cursor = new Date(event.date.getFullYear(), event.date.getMonth(), 1);
+        let count = 0;
 
-        let cursor = new Date(baseEvent.date.getFullYear(), baseEvent.date.getMonth(), 1);
-
-        while (cursor <= repeatUntil && cursor <= endWindow) {
+        while (cursor <= repeatUntil && cursor <= windowEnd) {
           let instanceDate = null;
 
           if (!pattern || pattern.type === "same-date") {
-            const day = baseEvent.date.getDate();
-            instanceDate = new Date(cursor.getFullYear(), cursor.getMonth(), day);
+            instanceDate = new Date(cursor.getFullYear(), cursor.getMonth(), event.date.getDate());
 
             if (instanceDate.getMonth() !== cursor.getMonth()) {
               instanceDate = null;
             }
-          } else if (pattern.type === "nth") {
+          }
+
+          if (pattern && pattern.type === "nth") {
             instanceDate = getNthWeekdayOfMonth(cursor.getFullYear(), cursor.getMonth(), pattern.weekday, pattern.nth);
-          } else if (pattern.type === "last") {
+          }
+
+          if (pattern && pattern.type === "last") {
             instanceDate = getLastWeekdayOfMonth(cursor.getFullYear(), cursor.getMonth(), pattern.weekday);
           }
 
-          if (instanceDate && instanceDate >= baseEvent.date && instanceDate <= repeatUntil && instanceDate >= startWindow) {
-            events.push(makeInstance(baseEvent, instanceDate, instanceIndex));
-            instanceIndex++;
+          if (instanceDate && instanceDate >= event.date && instanceDate <= repeatUntil && instanceDate >= windowStart) {
+            instances.push(makeInstance(event, instanceDate, count));
+            count++;
           }
 
           cursor.setMonth(cursor.getMonth() + 1);
         }
 
-        return events;
+        return instances;
       }
 
-      return [baseEvent];
+      return [makeInstance(event, event.date, 0)];
     }
 
     function makeEventCard(event) {
@@ -850,10 +805,6 @@
         ? `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`
         : formatTime(event.startTime || event.endTime);
 
-      const recurrenceNote = event.repeatType && normalize(event.repeatType) !== "no"
-        ? `<div class="small"><strong>Repeats:</strong> ${event.repeatType}</div>`
-        : "";
-
       return `
         <article class="event-card${specialClass}" id="${event.id}">
           <span class="category-pill ${categoryClass}">${event.category}</span>
@@ -861,7 +812,6 @@
           <div class="event-meta">${dateRange}${timeRange ? " | " + timeRange : ""}</div>
           ${event.location ? `<div><strong>Location:</strong> ${event.location}</div>` : ""}
           ${event.description ? `<p>${event.description}</p>` : ""}
-          ${recurrenceNote}
           ${event.contactPerson || event.contactInfo ? `
             <div class="small">
               <strong>Contact:</strong>
@@ -883,7 +833,7 @@
         .sort((a, b) => a.date - b.date);
 
       if (filteredCategory !== "All") {
-        events = events.filter(event => normalize(event.category) === normalize(filteredCategory));
+        events = events.filter(event => getCategoryLabel(event.category) === filteredCategory);
       }
 
       if (!events.length) {
@@ -923,14 +873,10 @@
         let dayEvents = allEvents.filter(event => sameDate(event.date, date));
 
         if (filteredCategory !== "All") {
-          dayEvents = dayEvents.filter(event => normalize(event.category) === normalize(filteredCategory));
+          dayEvents = dayEvents.filter(event => getCategoryLabel(event.category) === filteredCategory);
         }
 
-        dayEvents.sort((a, b) => {
-          const timeA = clean(a.startTime);
-          const timeB = clean(b.startTime);
-          return timeA.localeCompare(timeB);
-        });
+        dayEvents.sort((a, b) => clean(a.startTime).localeCompare(clean(b.startTime)));
 
         html += `
           <div class="calendar-day">
@@ -942,9 +888,7 @@
               </a>
             `).join("")}
 
-            ${dayEvents.length > 3 ? `
-              <div class="more-events">+${dayEvents.length - 3} more</div>
-            ` : ""}
+            ${dayEvents.length > 3 ? `<div class="more-events">+${dayEvents.length - 3} more</div>` : ""}
           </div>
         `;
       }
@@ -983,7 +927,7 @@
 
     async function loadEvents() {
       try {
-        const response = await fetch(CSV_URL);
+        const response = await fetch(CSV_URL + "&cacheBust=" + Date.now());
         const text = await response.text();
         const rows = parseCSV(text);
 
@@ -996,19 +940,14 @@
             item[header] = clean(row[columnIndex]);
           });
 
+          const category = getCategoryLabel(item["Event Category"]);
           const date = parseDate(item["Event Date"]);
           const endDate = parseDate(item["Event End Date"]) || date;
           const repeatUntil = parseDate(item["Repeat Until"]);
 
-          const category = getCategoryLabel(item["Event Category"]);
-          const title = formatSpecialDayTitle({
-            ...item,
-            "Event Category": category
-          });
-
           return {
-            id: `event-${rowIndex}`,
-            title,
+            baseId: `event-${rowIndex}`,
+            title: formatSpecialDayTitle(item, category),
             category,
             date,
             endDate,
@@ -1023,13 +962,12 @@
             repeatType: item["Does this event repeat?"],
             weeklyRepeatDay: item["Weekly Repeat Day"],
             monthlyRepeatPattern: item["Monthly Repeat Pattern"],
-            repeatUntil,
-            displayNames: item["Name(s) to Display"] || item["Name(s) to Display on the Calendar"]
+            repeatUntil
           };
         }).filter(event => event.date);
 
         allEvents = baseEvents
-          .flatMap(expandRecurringEvent)
+          .flatMap(expandEvent)
           .sort((a, b) => a.date - b.date);
 
         renderEventList();
