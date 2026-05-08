@@ -17,7 +17,9 @@
       --soft-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -106,7 +108,9 @@
       margin: 1.75rem auto 0;
     }
 
-    section { margin-bottom: 2.25rem; }
+    section {
+      margin-bottom: 2.25rem;
+    }
 
     .section-title {
       color: var(--royal-blue);
@@ -131,28 +135,28 @@
       margin-bottom: 1.5rem;
     }
 
- .filters {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.35rem;
-  margin-bottom: 1.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-}
+    .filters {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.35rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
 
-.filter-button {
-  border: 1px solid var(--silver);
-  background: var(--white);
-  color: var(--royal-blue);
-  padding: 0.45rem 0.55rem;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: bold;
-  font-family: inherit;
-  font-size: 0.82rem;
-  white-space: nowrap;
-  flex: 0 0 auto;
-}
+    .filter-button {
+      border: 1px solid var(--silver);
+      background: var(--white);
+      color: var(--royal-blue);
+      padding: 0.45rem 0.55rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: inherit;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
 
     .filter-button.active {
       background: var(--royal-blue);
@@ -189,7 +193,9 @@
       font-size: 1.35rem;
     }
 
-    .special-day-card h3 { color: var(--burgundy); }
+    .special-day-card h3 {
+      color: var(--burgundy);
+    }
 
     .event-meta {
       font-weight: bold;
@@ -206,15 +212,30 @@
       font-weight: bold;
     }
 
-    .cat-faith { background: var(--royal-blue); }
-    .cat-district { background: var(--gold); color: var(--black); }
-    .cat-state { background: var(--burgundy); }
-    .cat-academy { background: var(--silver); color: var(--black); }
+    .cat-faith {
+      background: var(--royal-blue);
+    }
+
+    .cat-district {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .cat-state {
+      background: var(--burgundy);
+    }
+
+    .cat-academy {
+      background: var(--silver);
+      color: var(--black);
+    }
+
     .cat-community {
       background: var(--white);
       color: var(--royal-blue);
       border: 2px solid var(--royal-blue);
     }
+
     .cat-special {
       background: var(--burgundy);
       color: var(--white);
@@ -278,7 +299,9 @@
       background: var(--white);
     }
 
-    .calendar-day.empty { background: #f7f4ee; }
+    .calendar-day.empty {
+      background: #f7f4ee;
+    }
 
     .date-number {
       font-weight: bold;
@@ -350,7 +373,9 @@
     }
 
     @media (max-width: 700px) {
-      header { padding: 0.85rem 0.8rem 1rem; }
+      header {
+        padding: 0.85rem 0.8rem 1rem;
+      }
 
       .logo-wrap {
         width: 82px;
@@ -362,7 +387,9 @@
         margin-top: 1.25rem;
       }
 
-      .calendar-header { align-items: flex-start; }
+      .calendar-header {
+        align-items: flex-start;
+      }
 
       .calendar-nav button {
         margin-left: 0;
@@ -370,17 +397,26 @@
         margin-top: 0.25rem;
       }
 
-      .calendar-grid { display: block; }
-      .day-name { display: none; }
+      .calendar-grid {
+        display: block;
+      }
+
+      .day-name {
+        display: none;
+      }
 
       .calendar-day {
         min-height: auto;
         border-right: none;
       }
 
-      .calendar-day.empty { display: none; }
+      .calendar-day.empty {
+        display: none;
+      }
 
-      .date-number::before { content: "Date: "; }
+      .date-number::before {
+        content: "Date: ";
+      }
     }
   </style>
 </head>
@@ -515,6 +551,14 @@
 
     function normalize(value) {
       return clean(value).toLowerCase().replace(/[’']/g, "");
+    }
+
+    function getFirstValueByPossibleHeaders(item, possibleHeaders) {
+      for (const header of possibleHeaders) {
+        const value = clean(item[header]);
+        if (value) return value;
+      }
+      return "";
     }
 
     function parseDate(value) {
@@ -655,45 +699,45 @@
       return new Date(year, month, lastDay.getDate() - offset);
     }
 
-function formatSpecialDayTitle(item, category) {
-  if (getCategoryLabel(category) !== "Member Special Days") {
-    return clean(item["Event Title"]) || "Untitled Event";
-  }
+    function formatSpecialDayTitle(item, category) {
+      if (getCategoryLabel(category) !== "Member Special Days") {
+        return clean(item["Event Title"]) || "Untitled Event";
+      }
 
-  const rawType = getFirstValueByPossibleHeaders(item, [
-    "Special Day Type",
-    "Type of Special Day",
-    "Birthday or Anniversary"
-  ]);
+      const rawType = getFirstValueByPossibleHeaders(item, [
+        "Special Day Type",
+        "Type of Special Day",
+        "Birthday or Anniversary"
+      ]);
 
-  const normalizedType = normalize(rawType);
+      const normalizedType = normalize(rawType);
 
-  let type = "Special Day";
+      let type = "Special Day";
 
-  if (normalizedType.includes("birthday")) {
-    type = "Birthday";
-  } else if (normalizedType.includes("anniversary")) {
-    type = "Anniversary";
-  } else if (rawType) {
-    type = rawType;
-  }
+      if (normalizedType.includes("birthday")) {
+        type = "Birthday";
+      } else if (normalizedType.includes("anniversary")) {
+        type = "Anniversary";
+      } else if (rawType) {
+        type = rawType;
+      }
 
-  const names = getFirstValueByPossibleHeaders(item, [
-    "Name(s) to Display",
-    "Name(s) to Display on the Calendar",
-    "Names to Display",
-    "Name to Display",
-    "Anniversary Name(s) to Display",
-    "Birthday Name(s) to Display",
-    "Name(s)"
-  ]);
+      const names = getFirstValueByPossibleHeaders(item, [
+        "Name(s) to Display",
+        "Name(s) to Display on the Calendar",
+        "Names to Display",
+        "Name to Display",
+        "Anniversary Name(s) to Display",
+        "Birthday Name(s) to Display",
+        "Name(s)"
+      ]);
 
-  if (names) {
-    return `${type}: ${names}`;
-  }
+      if (names) {
+        return `${type}: ${names}`;
+      }
 
-  return clean(item["Event Title"]) || `${type}: Member`;
-}
+      return clean(item["Event Title"]) || `${type}: Member`;
+    }
 
     function makeInstance(event, date, instanceIndex) {
       let endDate = date;
@@ -854,30 +898,30 @@ function formatSpecialDayTitle(item, category) {
       `;
     }
 
-function renderEventList() {
-  const container = document.getElementById("event-list");
+    function renderEventList() {
+      const container = document.getElementById("event-list");
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-  const upcomingWindowEnd = new Date(today);
-  upcomingWindowEnd.setDate(upcomingWindowEnd.getDate() + 90);
+      const upcomingWindowEnd = new Date(today);
+      upcomingWindowEnd.setDate(upcomingWindowEnd.getDate() + 90);
 
-  let events = allEvents
-    .filter(event => event.date >= today && event.date <= upcomingWindowEnd)
-    .sort((a, b) => a.date - b.date);
+      let events = allEvents
+        .filter(event => event.date >= today && event.date <= upcomingWindowEnd)
+        .sort((a, b) => a.date - b.date);
 
-  if (filteredCategory !== "All") {
-    events = events.filter(event => getCategoryLabel(event.category) === filteredCategory);
-  }
+      if (filteredCategory !== "All") {
+        events = events.filter(event => getCategoryLabel(event.category) === filteredCategory);
+      }
 
-  if (!events.length) {
-    container.innerHTML = `<div class="empty-state">No approved events match this category in the next 90 days.</div>`;
-    return;
-  }
+      if (!events.length) {
+        container.innerHTML = `<div class="empty-state">No approved events match this category in the next 90 days.</div>`;
+        return;
+      }
 
-  container.innerHTML = events.map(makeEventCard).join("");
-}
+      container.innerHTML = events.map(makeEventCard).join("");
+    }
 
     function renderCalendar() {
       const grid = document.getElementById("calendar-grid");
@@ -980,26 +1024,34 @@ function renderEventList() {
           const endDate = parseDate(item["Event End Date"]) || date;
           const repeatUntil = parseDate(item["Repeat Until"]);
 
-return {
-  baseId: `event-${rowIndex}`,
-  title: formatSpecialDayTitle(item, category),
-  category,
-  date,
-  endDate,
-  startTime: item["Start Time"],
-  endTime: item["End Time"],
-  location: item["Location"],
-  description: item["Event Description"] || item["Additional Notes"],
-  contactPerson: item["Contact Person"],
-  contactInfo: item["Contact Phone or Email"],
-  specialDayType: item["Special Day Type"],
-  specialDayRepeat: item["Should this special day repeat every year?"],
-  repeatType: item["Does this event repeat?"],
-  weeklyRepeatDay: item["Weekly Repeat Day"],
-  monthlyRepeatPattern: item["Monthly Repeat Pattern"],
-  repeatUntil,
-  displayNames: item["Name(s) to Display"] || item["Name(s) to Display on the Calendar"]
-};
+          return {
+            baseId: `event-${rowIndex}`,
+            title: formatSpecialDayTitle(item, category),
+            category,
+            date,
+            endDate,
+            startTime: item["Start Time"],
+            endTime: item["End Time"],
+            location: item["Location"],
+            description: item["Event Description"] || item["Additional Notes"],
+            contactPerson: item["Contact Person"],
+            contactInfo: item["Contact Phone or Email"],
+            specialDayType: item["Special Day Type"],
+            specialDayRepeat: item["Should this special day repeat every year?"],
+            repeatType: item["Does this event repeat?"],
+            weeklyRepeatDay: item["Weekly Repeat Day"],
+            monthlyRepeatPattern: item["Monthly Repeat Pattern"],
+            repeatUntil,
+            displayNames: getFirstValueByPossibleHeaders(item, [
+              "Name(s) to Display",
+              "Name(s) to Display on the Calendar",
+              "Names to Display",
+              "Name to Display",
+              "Anniversary Name(s) to Display",
+              "Birthday Name(s) to Display",
+              "Name(s)"
+            ])
+          };
         }).filter(event => event.date);
 
         allEvents = baseEvents
