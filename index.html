@@ -592,6 +592,32 @@
         a.getDate() === b.getDate();
     }
 
+    function eventOccursOnDate(event, date) {
+      if (!event.date || !date) return false;
+
+      const eventStart = new Date(
+        event.date.getFullYear(),
+        event.date.getMonth(),
+        event.date.getDate()
+      );
+
+      const eventEnd = event.endDate
+        ? new Date(
+            event.endDate.getFullYear(),
+            event.endDate.getMonth(),
+            event.endDate.getDate()
+          )
+        : eventStart;
+
+      const calendarDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      );
+
+      return calendarDate >= eventStart && calendarDate <= eventEnd;
+    }
+
     function formatDate(date) {
       if (!date) return "";
       return date.toLocaleDateString("en-US", {
@@ -950,7 +976,7 @@
       for (let day = 1; day <= lastDay.getDate(); day++) {
         const date = new Date(year, month, day);
 
-        let dayEvents = allEvents.filter(event => sameDate(event.date, date));
+        let dayEvents = allEvents.filter(event => eventOccursOnDate(event, date));
 
         if (filteredCategory !== "All") {
           dayEvents = dayEvents.filter(event => getCategoryLabel(event.category) === filteredCategory);
