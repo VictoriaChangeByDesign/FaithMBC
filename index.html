@@ -165,14 +165,31 @@
       gap: 1.25rem;
     }
 
- .event-card {
-  scroll-margin-top: 1.5rem;
-}
+    .event-card {
+      background: var(--white);
+      border: 1px solid rgba(168, 168, 168, 0.55);
+      border-radius: 20px;
+      padding: 1.25rem;
+      box-shadow: var(--soft-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      scroll-margin-top: 1.5rem;
+    }
+
+    .event-card.special-day-card {
+      border: 2px solid var(--gold);
+      background: #fffdf7;
+    }
 
     .event-card h3 {
       margin: 0;
       color: var(--royal-blue);
       font-size: 1.35rem;
+    }
+
+    .special-day-card h3 {
+      color: var(--burgundy);
     }
 
     .event-meta {
@@ -212,6 +229,12 @@
       background: var(--white);
       color: var(--royal-blue);
       border: 2px solid var(--royal-blue);
+    }
+
+    .cat-special {
+      background: var(--burgundy);
+      color: var(--white);
+      border: 2px solid var(--gold);
     }
 
     .calendar-shell {
@@ -281,22 +304,24 @@
       margin-bottom: 0.35rem;
     }
 
- .calendar-event {
-  display: block;
-  font-size: 0.78rem;
-  padding: 0.25rem 0.35rem;
-  border-radius: 6px;
-  margin-bottom: 0.25rem;
-  color: var(--white);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-decoration: none;
-}
-.calendar-event:hover {
-  text-decoration: underline;
-  filter: brightness(1.05);
-}
+    .calendar-event {
+      display: block;
+      font-size: 0.78rem;
+      padding: 0.25rem 0.35rem;
+      border-radius: 6px;
+      margin-bottom: 0.25rem;
+      color: var(--white);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .calendar-event:hover {
+      text-decoration: underline;
+      filter: brightness(1.05);
+    }
+
     .calendar-event.cat-district {
       color: var(--black);
     }
@@ -308,6 +333,19 @@
     .calendar-event.cat-community {
       color: var(--royal-blue);
       border: 1px solid var(--royal-blue);
+    }
+
+    .calendar-event.cat-special {
+      background: var(--burgundy);
+      color: var(--white);
+      border: 1px solid var(--gold);
+    }
+
+    .more-events {
+      font-size: 0.78rem;
+      font-weight: bold;
+      color: var(--burgundy);
+      margin-top: 0.25rem;
     }
 
     .empty-state {
@@ -388,7 +426,7 @@
     </div>
 
     <h1>Faith Community Calendar</h1>
-    <p>Stay connected with worship, ministry, Faith Academy, and community events.</p>
+    <p>Stay connected with worship, ministry, Faith Academy, community events, birthdays, and anniversaries.</p>
     <p class="header-note">Calendar submissions are updated on Mondays and Thursdays.</p>
 
     <div class="top-actions">
@@ -427,6 +465,7 @@
         <button class="filter-button" data-category="State Convention Events">State Convention Events</button>
         <button class="filter-button" data-category="Faith Academy Events">Faith Academy Events</button>
         <button class="filter-button" data-category="Community Events">Community Events</button>
+        <button class="filter-button" data-category="Member Special Days">Member Special Days</button>
       </div>
 
       <div id="event-list" class="event-grid"></div>
@@ -458,7 +497,8 @@
       "Central District Events": "cat-district",
       "State Convention Events": "cat-state",
       "Faith Academy Events": "cat-academy",
-      "Community Events": "cat-community"
+      "Community Events": "cat-community",
+      "Member Special Days": "cat-special"
     };
 
     function parseCSV(text) {
@@ -504,21 +544,43 @@
     }
 
     function clean(value) {
-      return value ? value.trim() : "";
+      return value ? String(value).trim() : "";
+    }
+
+    function normalize(value) {
+      return clean(value).toLowerCase();
     }
 
     function parseDate(value) {
       if (!value) return null;
 
-      const parsed = new Date(value);
-      if (!isNaN(parsed)) return parsed;
+      const cleaned = clean(value);
 
-      const parts = value.split("/");
-      if (parts.length === 3) {
-        return new Date(parts[2], parts[0] - 1, parts[1]);
+      const slashParts = cleaned.split("/");
+      if (slashParts.length === 3) {
+        const month = parseInt(slashParts[0], 10);
+        const day = parseInt(slashParts[1], 10);
+        const year = parseInt(slashParts[2], 10);
+
+        if (!isNaN(month) && !isNaN(day) && !isNaN(year)) {
+          return new Date(year, month - 1, day);
+        }
+      }
+
+      const parsed = new Date(cleaned);
+      if (!isNaN(parsed)) {
+        return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
       }
 
       return null;
+    }
+
+    function sameDate(dateA, dateB) {
+      return dateA &&
+        dateB &&
+        dateA.getFullYear() === dateB.getFullYear() &&
+        dateA.getMonth() === dateB.getMonth() &&
+        dateA.getDate() === dateB.getDate();
     }
 
     function formatDate(date) {
@@ -534,7 +596,7 @@
     function formatTime(value) {
       if (!value) return "";
 
-      const time = value.trim();
+      const time = clean(value);
 
       if (time.includes("AM") || time.includes("PM")) return time;
 
@@ -553,33 +615,263 @@
       return categoryClassMap[category] || "cat-faith";
     }
 
-function makeEventCard(event) {
-  const categoryClass = getCategoryClass(event.category);
-  const dateRange = event.endDate && event.endDate.getTime() !== event.date.getTime()
-    ? `${formatDate(event.date)} - ${formatDate(event.endDate)}`
-    : formatDate(event.date);
+    function isMemberSpecialDay(event) {
+      return normalize(event.category) === "member special days";
+    }
 
-  const timeRange = event.startTime && event.endTime
-    ? `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`
-    : formatTime(event.startTime || event.endTime);
+    function formatSpecialDayTitle(item) {
+      const type = clean(item["Special Day Type"]);
+      const names = clean(item["Name(s) to Display"]) || clean(item["Name(s) to Display on the Calendar"]);
+      const existingTitle = clean(item["Event Title"]);
 
-  return `
-    <article class="event-card" id="${event.id}">
-      <span class="category-pill ${categoryClass}">${event.category}</span>
-      <h3>${event.title}</h3>
-      <div class="event-meta">${dateRange}${timeRange ? " | " + timeRange : ""}</div>
-      ${event.location ? `<div><strong>Location:</strong> ${event.location}</div>` : ""}
-      ${event.description ? `<p>${event.description}</p>` : ""}
-      ${event.contactPerson || event.contactInfo ? `
-        <div class="small">
-          <strong>Contact:</strong>
-          ${event.contactPerson ? event.contactPerson : ""}
-          ${event.contactInfo ? `, ${event.contactInfo}` : ""}
-        </div>
-      ` : ""}
-    </article>
-  `;
-}
+      if (!isMemberSpecialDay({ category: item["Event Category"] })) {
+        return existingTitle || "Untitled Event";
+      }
+
+      if (type && names) {
+        return `${type}: ${names}`;
+      }
+
+      if (type && existingTitle) {
+        return `${type}: ${existingTitle}`;
+      }
+
+      if (names) {
+        return names;
+      }
+
+      return existingTitle || "Member Special Day";
+    }
+
+    function getCategoryLabel(category) {
+      const normalized = normalize(category);
+
+      if (normalized === "member special day") return "Member Special Days";
+      if (normalized === "member special days") return "Member Special Days";
+      if (normalized === "events at faith") return "Events at Faith";
+      if (normalized === "central district events") return "Central District Events";
+      if (normalized === "state convention events") return "State Convention Events";
+      if (normalized === "faith academy events") return "Faith Academy Events";
+      if (normalized === "community events") return "Community Events";
+
+      return category || "Events at Faith";
+    }
+
+    function getDayNumber(dayName) {
+      const days = {
+        "sunday": 0,
+        "monday": 1,
+        "tuesday": 2,
+        "wednesday": 3,
+        "thursday": 4,
+        "friday": 5,
+        "saturday": 6
+      };
+
+      return days[normalize(dayName)];
+    }
+
+    function getNthWeekdayOfMonth(year, month, weekday, nth) {
+      const firstDay = new Date(year, month, 1);
+      const firstWeekdayOffset = (weekday - firstDay.getDay() + 7) % 7;
+      const day = 1 + firstWeekdayOffset + (nth - 1) * 7;
+      const result = new Date(year, month, day);
+
+      if (result.getMonth() !== month) return null;
+
+      return result;
+    }
+
+    function getLastWeekdayOfMonth(year, month, weekday) {
+      const lastDay = new Date(year, month + 1, 0);
+      const offset = (lastDay.getDay() - weekday + 7) % 7;
+      return new Date(year, month, lastDay.getDate() - offset);
+    }
+
+    function parseMonthlyPattern(pattern) {
+      const normalized = normalize(pattern);
+
+      if (normalized === "same date each month") {
+        return { type: "same-date" };
+      }
+
+      const parts = normalized.split(" ");
+      if (parts.length !== 2) return null;
+
+      const orderWord = parts[0];
+      const dayWord = parts[1];
+
+      const weekday = getDayNumber(dayWord);
+      if (weekday === undefined) return null;
+
+      if (orderWord === "last") {
+        return { type: "last", weekday };
+      }
+
+      const orderMap = {
+        "first": 1,
+        "second": 2,
+        "third": 3,
+        "fourth": 4
+      };
+
+      if (!orderMap[orderWord]) return null;
+
+      return {
+        type: "nth",
+        nth: orderMap[orderWord],
+        weekday
+      };
+    }
+
+    function makeInstance(baseEvent, instanceDate, instanceIndex) {
+      const endDate = baseEvent.endDate && !sameDate(baseEvent.endDate, baseEvent.date)
+        ? new Date(
+            instanceDate.getFullYear(),
+            instanceDate.getMonth(),
+            instanceDate.getDate() + Math.round((baseEvent.endDate - baseEvent.date) / (1000 * 60 * 60 * 24))
+          )
+        : instanceDate;
+
+      return {
+        ...baseEvent,
+        id: `${baseEvent.id}-${instanceIndex}`,
+        date: instanceDate,
+        endDate
+      };
+    }
+
+    function expandRecurringEvent(baseEvent) {
+      const repeatType = normalize(baseEvent.repeatType);
+      const specialRepeat = normalize(baseEvent.specialDayRepeat);
+      const isSpecial = isMemberSpecialDay(baseEvent);
+
+      const startWindow = new Date(new Date().getFullYear() - 1, 0, 1);
+      const endWindow = new Date(new Date().getFullYear() + 2, 11, 31);
+
+      let repeatUntil = baseEvent.repeatUntil || endWindow;
+
+      if (isSpecial && specialRepeat !== "no") {
+        repeatUntil = endWindow;
+      }
+
+      if (!baseEvent.date) return [];
+
+      if (!repeatType && !isSpecial) {
+        return [baseEvent];
+      }
+
+      if (repeatType === "no") {
+        return [baseEvent];
+      }
+
+      if (isSpecial || repeatType === "yearly") {
+        const events = [];
+        let instanceIndex = 0;
+
+        for (let year = startWindow.getFullYear(); year <= repeatUntil.getFullYear(); year++) {
+          const instanceDate = new Date(year, baseEvent.date.getMonth(), baseEvent.date.getDate());
+
+          if (instanceDate >= startWindow && instanceDate <= repeatUntil) {
+            events.push(makeInstance(baseEvent, instanceDate, instanceIndex));
+            instanceIndex++;
+          }
+        }
+
+        return events;
+      }
+
+      if (repeatType === "weekly") {
+        const events = [];
+        const weekday = getDayNumber(baseEvent.weeklyRepeatDay) ?? baseEvent.date.getDay();
+        let current = new Date(baseEvent.date);
+        let instanceIndex = 0;
+
+        const offset = (weekday - current.getDay() + 7) % 7;
+        current.setDate(current.getDate() + offset);
+
+        while (current <= repeatUntil && current <= endWindow) {
+          if (current >= startWindow) {
+            events.push(makeInstance(baseEvent, new Date(current), instanceIndex));
+            instanceIndex++;
+          }
+          current.setDate(current.getDate() + 7);
+        }
+
+        return events;
+      }
+
+      if (repeatType === "monthly") {
+        const events = [];
+        const pattern = parseMonthlyPattern(baseEvent.monthlyRepeatPattern);
+        let instanceIndex = 0;
+
+        let cursor = new Date(baseEvent.date.getFullYear(), baseEvent.date.getMonth(), 1);
+
+        while (cursor <= repeatUntil && cursor <= endWindow) {
+          let instanceDate = null;
+
+          if (!pattern || pattern.type === "same-date") {
+            const day = baseEvent.date.getDate();
+            instanceDate = new Date(cursor.getFullYear(), cursor.getMonth(), day);
+
+            if (instanceDate.getMonth() !== cursor.getMonth()) {
+              instanceDate = null;
+            }
+          } else if (pattern.type === "nth") {
+            instanceDate = getNthWeekdayOfMonth(cursor.getFullYear(), cursor.getMonth(), pattern.weekday, pattern.nth);
+          } else if (pattern.type === "last") {
+            instanceDate = getLastWeekdayOfMonth(cursor.getFullYear(), cursor.getMonth(), pattern.weekday);
+          }
+
+          if (instanceDate && instanceDate >= baseEvent.date && instanceDate <= repeatUntil && instanceDate >= startWindow) {
+            events.push(makeInstance(baseEvent, instanceDate, instanceIndex));
+            instanceIndex++;
+          }
+
+          cursor.setMonth(cursor.getMonth() + 1);
+        }
+
+        return events;
+      }
+
+      return [baseEvent];
+    }
+
+    function makeEventCard(event) {
+      const categoryClass = getCategoryClass(event.category);
+      const specialClass = isMemberSpecialDay(event) ? " special-day-card" : "";
+
+      const dateRange = event.endDate && !sameDate(event.endDate, event.date)
+        ? `${formatDate(event.date)} - ${formatDate(event.endDate)}`
+        : formatDate(event.date);
+
+      const timeRange = event.startTime && event.endTime
+        ? `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`
+        : formatTime(event.startTime || event.endTime);
+
+      const recurrenceNote = event.repeatType && normalize(event.repeatType) !== "no"
+        ? `<div class="small"><strong>Repeats:</strong> ${event.repeatType}</div>`
+        : "";
+
+      return `
+        <article class="event-card${specialClass}" id="${event.id}">
+          <span class="category-pill ${categoryClass}">${event.category}</span>
+          <h3>${event.title}</h3>
+          <div class="event-meta">${dateRange}${timeRange ? " | " + timeRange : ""}</div>
+          ${event.location ? `<div><strong>Location:</strong> ${event.location}</div>` : ""}
+          ${event.description ? `<p>${event.description}</p>` : ""}
+          ${recurrenceNote}
+          ${event.contactPerson || event.contactInfo ? `
+            <div class="small">
+              <strong>Contact:</strong>
+              ${event.contactPerson ? event.contactPerson : ""}
+              ${event.contactInfo ? `, ${event.contactInfo}` : ""}
+            </div>
+          ` : ""}
+        </article>
+      `;
+    }
 
     function renderEventList() {
       const container = document.getElementById("event-list");
@@ -591,7 +883,7 @@ function makeEventCard(event) {
         .sort((a, b) => a.date - b.date);
 
       if (filteredCategory !== "All") {
-        events = events.filter(event => event.category === filteredCategory);
+        events = events.filter(event => normalize(event.category) === normalize(filteredCategory));
       }
 
       if (!events.length) {
@@ -627,22 +919,32 @@ function makeEventCard(event) {
 
       for (let day = 1; day <= lastDay.getDate(); day++) {
         const date = new Date(year, month, day);
-        const dateKey = date.toDateString();
 
-        let dayEvents = allEvents.filter(event => event.date.toDateString() === dateKey);
+        let dayEvents = allEvents.filter(event => sameDate(event.date, date));
 
         if (filteredCategory !== "All") {
-          dayEvents = dayEvents.filter(event => event.category === filteredCategory);
+          dayEvents = dayEvents.filter(event => normalize(event.category) === normalize(filteredCategory));
         }
+
+        dayEvents.sort((a, b) => {
+          const timeA = clean(a.startTime);
+          const timeB = clean(b.startTime);
+          return timeA.localeCompare(timeB);
+        });
 
         html += `
           <div class="calendar-day">
             <div class="date-number">${day}</div>
-           ${dayEvents.map(event => `
-  <a class="calendar-event ${getCategoryClass(event.category)}" href="#${event.id}" title="${event.title}">
-    ${event.title}
-  </a>
-`).join("")}
+
+            ${dayEvents.slice(0, 3).map(event => `
+              <a class="calendar-event ${getCategoryClass(event.category)}" href="#${event.id}" title="${event.title}">
+                ${event.title}
+              </a>
+            `).join("")}
+
+            ${dayEvents.length > 3 ? `
+              <div class="more-events">+${dayEvents.length - 3} more</div>
+            ` : ""}
           </div>
         `;
       }
@@ -687,36 +989,55 @@ function makeEventCard(event) {
 
         const headers = rows.shift().map(header => clean(header));
 
-  allEvents = rows.map((row, index) => {
+        const baseEvents = rows.map((row, rowIndex) => {
           const item = {};
-          headers.forEach((header, index) => {
-            item[header] = clean(row[index]);
+
+          headers.forEach((header, columnIndex) => {
+            item[header] = clean(row[columnIndex]);
           });
 
           const date = parseDate(item["Event Date"]);
           const endDate = parseDate(item["Event End Date"]) || date;
+          const repeatUntil = parseDate(item["Repeat Until"]);
+
+          const category = getCategoryLabel(item["Event Category"]);
+          const title = formatSpecialDayTitle({
+            ...item,
+            "Event Category": category
+          });
 
           return {
-            id: `event-${index}`,
-            title: item["Event Title"] || "Untitled Event",
-            category: item["Event Category"] || "Events at Faith",
+            id: `event-${rowIndex}`,
+            title,
+            category,
             date,
             endDate,
             startTime: item["Start Time"],
             endTime: item["End Time"],
             location: item["Location"],
-            description: item["Event Description"],
+            description: item["Event Description"] || item["Additional Notes"],
             contactPerson: item["Contact Person"],
-            contactInfo: item["Contact Phone or Email"]
+            contactInfo: item["Contact Phone or Email"],
+            specialDayType: item["Special Day Type"],
+            specialDayRepeat: item["Should this special day repeat every year?"],
+            repeatType: item["Does this event repeat?"],
+            weeklyRepeatDay: item["Weekly Repeat Day"],
+            monthlyRepeatPattern: item["Monthly Repeat Pattern"],
+            repeatUntil,
+            displayNames: item["Name(s) to Display"] || item["Name(s) to Display on the Calendar"]
           };
         }).filter(event => event.date);
+
+        allEvents = baseEvents
+          .flatMap(expandRecurringEvent)
+          .sort((a, b) => a.date - b.date);
 
         renderEventList();
         renderCalendar();
       } catch (error) {
         console.error(error);
         document.getElementById("event-list").innerHTML =
-          `<div class="empty-state">The calendar could not load. Please check the published Google Sheet link.</div>`;
+          `<div class="empty-state">The calendar could not load. Please check the published Google Sheet link and Public Calendar Feed columns.</div>`;
         document.getElementById("calendar-grid").innerHTML = "";
       }
     }
