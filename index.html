@@ -416,7 +416,7 @@
     </section>
 
     <section>
-      <h2 class="section-title">Upcoming Events</h2>
+      <h2 class="section-title">Events Coming Up in the Next 90 Days</h2>
       <div class="section-rule"></div>
 
       <div class="filters" id="filters">
@@ -823,26 +823,30 @@
       `;
     }
 
-    function renderEventList() {
-      const container = document.getElementById("event-list");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+function renderEventList() {
+  const container = document.getElementById("event-list");
 
-      let events = allEvents
-        .filter(event => event.date >= today)
-        .sort((a, b) => a.date - b.date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-      if (filteredCategory !== "All") {
-        events = events.filter(event => getCategoryLabel(event.category) === filteredCategory);
-      }
+  const upcomingWindowEnd = new Date(today);
+  upcomingWindowEnd.setDate(upcomingWindowEnd.getDate() + 90);
 
-      if (!events.length) {
-        container.innerHTML = `<div class="empty-state">No approved events match this category yet.</div>`;
-        return;
-      }
+  let events = allEvents
+    .filter(event => event.date >= today && event.date <= upcomingWindowEnd)
+    .sort((a, b) => a.date - b.date);
 
-      container.innerHTML = events.map(makeEventCard).join("");
-    }
+  if (filteredCategory !== "All") {
+    events = events.filter(event => getCategoryLabel(event.category) === filteredCategory);
+  }
+
+  if (!events.length) {
+    container.innerHTML = `<div class="empty-state">No approved events match this category in the next 90 days.</div>`;
+    return;
+  }
+
+  container.innerHTML = events.map(makeEventCard).join("");
+}
 
     function renderCalendar() {
       const grid = document.getElementById("calendar-grid");
